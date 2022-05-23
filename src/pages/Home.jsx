@@ -1,48 +1,96 @@
 import Header from "../components/Header";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect} from "react";
 import {AlbumsContext} from '../context/GeneralContex'
 import {List, IconButton, Button, Card, CardContent, Grid, TextField} from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 
-import * as React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
+import {format} from 'date-fns'
+
+
+/* Getting the Data from Storage  */
+const FILTERED_DATA = 'FILTERED_DATA'
+const getDataFromStorage = () => {
+  const renderingData = sessionStorage.getItem(FILTERED_DATA)
+  if(renderingData){
+    return JSON.parse(sessionStorage.getItem(FILTERED_DATA))
+  } else {
+    return []
+  }
+}
 
 
 function Home() {
 
-  const {SetFavorite, favorite} = useContext(AlbumsContext)
+  /* state management with context */
+  const {favorite, SetFavorite, searchVal, SetSearchVal, SetSearchFavVal } = useContext(AlbumsContext)
+
+  /* Data from form inputs */
   const [album, setAlbum] = useState("");
   const [singer, setSinger] = useState("");
   const [song, setSong] = useState("");
   const [band, setBand] = useState("");
-  const [allInfo, setAllInfo] = useState([]);
+  const [allInfo, setAllInfo] = useState(getDataFromStorage());
   
+
+  
+  /* filtering the lists for search*/
+  const filteredData = allInfo.filter(el=>el?.album?.toLowerCase().includes(searchVal))
+
+  /* collecting form input data */
   const handleSubmit = (e) => {
     e.preventDefault();
-    const joinedData = { album, favorites: false, singer, band, song, id: uuidv4()};
-
+    const date = format(new Date(),'yyyy/mm/dd')
+    const joinedData = { date, album, favorites: false, singer, band, song, id: uuidv4()};
     setAllInfo([...allInfo, joinedData]);
+    sessionStorage.setItem(FILTERED_DATA, JSON.stringify(allInfo))
     setAlbum("");
     setSinger("");
     setSong("");
     setBand("");
   };
-
+  
+  /* deleteing the list items from lists */
   const handleDeleteClick = (index) =>{
     allInfo.splice(index, 1)
     setAllInfo([...allInfo])
   }
+
+  /* storing the favorit list items */
   const handleFavClick = (index) =>{
-      SetFavorite([...favorite, allInfo[index]])
+      
+      SetFavorite([...favorite, filteredData[index]])
       alert('Added to Favorites')
   }
 
-  console.log(favorite);
+  const handleSelectSortChange = (e) =>{
+  
+    switch (e.target.value) {
+      
+      case 'Newest':
+      console.log('Newest')
+      break
+    case 'Oldest': 
+      console.log('oldest')
+      break
+    case 'Album':
+          allInfo.map(el=>console.log(el.album))
+    default:
+        break;
+    }
+  }
+
+/* Setting the Data to Storage */
+  useEffect(()=>{
+    
+  },[])
+
+  
 
   return (
     <div >
-      <Header />
+      <Header SetSearchFavVal={SetSearchFavVal} SetSearchVal={SetSearchVal}/>
       <h1 style={{ justifyContent: "center", textAlign: "center" }}>
         Popular albums and songs
       </h1>
@@ -109,9 +157,19 @@ function Home() {
 
       <Card sx={{ width: "60%", margin: '3%' }}>
         <CardContent>
+          <header style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
           <h2 style={{ color: "greenYellow" }}>List Items</h2>
+
+        <select onChange={(e)=>handleSelectSortChange(e)} defaultValue='Sort' style={{ width: '85px', height: '25px', marginTop: '25px'}}>
+        <option disabled value="Sort">Sort</option>
+        <option value="Newest">Newest</option>
+        <option value="Oldest">Oldest</option>
+        <option value="Album">Name</option>
+      </select>
+          </header>
           
-          <ul style={{ display: "flex", justifyContent: "center", justifyContent: "space-around", listStyle: "none"}}>
+          
+          <ul style={{margin: '0', display: "flex", justifyContent: "center", justifyContent: "space-around", listStyle: "none"}}>
             <li>Band</li>
             <li>Album</li>
             <li>Singer</li>
@@ -119,12 +177,17 @@ function Home() {
           </ul>
 
           <Grid  container spacing={2}>
-          {allInfo.map((el, index) => {
+          {filteredData.map((el, index) => {
             return (
                     <Grid  key={el.id} item xs={12} >
 
                         <Card  >
                           <CardContent sx={{display: 'flex', flexDirection: 'row', justifyContent:'space-evenly'}}>
+
+                          {/* Todo added all the in grid items */}
+                            <Grid item xs={4} >
+                            {el.band}
+                            </Grid>
 
                         <List sx={{width: '70%'}}>{el.band} | {el.album} | {el.singer} | {el.song}</List>
                         <IconButton spacing={2} edge="end" aria-label="delete" onClick={()=>handleDeleteClick(index)}>

@@ -1,25 +1,31 @@
 import Header from "../components/Header";
-import {useState, useContext} from 'react'
+import {useState, useContext, useEffect} from 'react'
 import {AlbumsContext} from '../context/GeneralContex'
 import {List, IconButton, Button, Card, CardContent, Grid, TextField} from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 
-
+/* Getting the Data from Storage  */
+const FILTERED_FAVORITE_DATA = 'FILTERED_FAVORITE_DATA'
 
 
 function MyAlbums() {
-    const {favorite, SetFavorite} = useContext(AlbumsContext)
+
+    const {favorite, SetFavorite, SetSearchVal, searchFavVal, SetSearchFavVal} = useContext(AlbumsContext)
 
 const handleDeleteClick = (index) =>{
     favorite.splice(index, 1)
     SetFavorite([...favorite])
 }
 
+const filteredFavData = favorite.filter(el=>el.album.toLowerCase().includes(searchFavVal))
+
+/* Setting the Data to Storage */
+
 
   return (
     <div>
-      <Header />
+      <Header SetSearchVal={SetSearchVal} SetSearchFavVal={SetSearchFavVal} />
       <h1 style={{ justifyContent: "center", textAlign: "center" }}>My albums</h1>
 
       <Card sx={{ width: "85%", margin: 'auto',  }}>
@@ -34,7 +40,7 @@ const handleDeleteClick = (index) =>{
           </ul>
 
           <Grid  container spacing={2}>
-          {favorite.map((el, index) => {
+          {filteredFavData.map((el, index) => {
             return (
                     <Grid  key={el.id} item xs={12} >
 
