@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState } from "react";
 
 export const AlbumsContext = createContext([]);
 
@@ -6,11 +6,7 @@ export const AlbumsContext = createContext([]);
 const FILTERED_DATA = 'FILTERED_DATA'
 const getDataFromStorage = () => {
   const renderingData = sessionStorage.getItem(FILTERED_DATA)
-  if(renderingData){
-    return JSON.parse(renderingData)
-  } else {
-    return []
-  }
+  return renderingData ? JSON.parse(renderingData) : []
 }
 
 
@@ -25,10 +21,10 @@ export const AlbumsProvider = ({ children }) => {
     setAllInfo: setAllInfo,
     favorite: favorite,
     SetFavorite: SetFavorite,
-    searchVal, searchVal,
-    SetSearchVal,SetSearchVal,
-    searchFavVal,searchFavVal,
-    SetSearchFavVal,SetSearchFavVal
+    searchVal: searchVal,
+    SetSearchVal: SetSearchVal,
+    searchFavVal: searchFavVal,
+    SetSearchFavVal: SetSearchFavVal
   };
 
   return (

@@ -1,8 +1,8 @@
 import Header from "../components/Header";
 import { useState, useContext } from "react";
-import { AlbumsContext } from "../context/GeneralContex";
-import { IconButton, Button, Card, CardContent, Grid, TextField} from "@mui/material";
-import { v4 as uuidv4 } from "uuid";
+import { AlbumsContext } from "../context/GeneralContext";
+import { IconButton, Button, Card, CardContent, Grid, TextField } from "@mui/material";
+import { v4 as uuid4 } from "uuid";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
@@ -20,21 +20,16 @@ function Home() {
   const [song, setSong] = useState("");
   const [band, setBand] = useState("");
 
-  /* filtering the lists for search*/
-  const filteredData = allInfo.filter((el) => {
-    console.log(el);
-    if (
-      el?.song?.toLowerCase().includes(searchVal) ||
-      el?.band?.toLowerCase().includes(searchVal) ||
-      el?.album?.toLowerCase().includes(searchVal) ||
-      el?.singer?.toLowerCase().includes(searchVal)
-    ) {
-      return el;
-    }
-  });
+  const ifIncludes = (elementPropertyVal) => elementPropertyVal.toLowerCase().includes(searchVal.toLowerCase())
+
+  const checkSearchVal = ({ song, band, album, singer }) => {
+    return ifIncludes(song) || ifIncludes(band) || ifIncludes(album) || ifIncludes(singer)
+  }
+  const filteredData = allInfo.filter((el) => searchVal.length ? checkSearchVal(el) : el)
+
 
   const date = format(new Date(), "yyyy/mm/dd");
-  const joinedData = {date, album, favorites: false, singer, band, song, id: uuidv4()};
+  const joinedData = { date, album, favorites: false, singer, band, song, id: uuid4() };
 
   /* collecting form input data */
   const handleSubmit = (e) => {
@@ -49,13 +44,13 @@ function Home() {
   /* Setting the Data to Storage */
   sessionStorage.setItem(FILTERED_DATA, JSON.stringify(allInfo));
 
-  /* deleteing the list items from lists */
+  /* deleting the list items from lists */
   const handleDeleteClick = (index) => {
     allInfo.splice(index, 1);
     setAllInfo([...allInfo]);
   };
 
-  /* storing the favorit list items */
+  /* storing the favorite list items */
   const handleFavClick = (index) => {
     allInfo[index].favorites = true;
     setAllInfo([...allInfo]);
@@ -71,7 +66,8 @@ function Home() {
         console.log("oldest");
         break;
       case "Album":
-        allInfo.map((el) => console.log(el.album));
+        allInfo.forEach((el) => console.log(el.album));
+        break;
       default:
         break;
     }
@@ -110,7 +106,7 @@ function Home() {
                     value={album}
                     onChange={(e) => setAlbum(e.target.value)}
                     label="Album"
-                    placeholder="Enter Albome name"
+                    placeholder="Enter Album name"
                     variant="outlined"
                     fullWidth
                     required
@@ -176,7 +172,6 @@ function Home() {
                 margin: "0",
                 display: "flex",
                 width: "65%",
-                justifyContent: "center",
                 justifyContent: "space-between",
                 listStyle: "none",
               }}
@@ -188,7 +183,7 @@ function Home() {
             </ul>
 
             <Grid container spacing={2}>
-              {filteredData.map((el, index) => {
+              {filteredData?.map((el, index) => {
                 return (
                   <Grid key={el.id} item xs={12}>
                     <Card>

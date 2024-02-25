@@ -1,36 +1,28 @@
 import Header from "../components/Header";
 import { useState, useContext } from "react";
-import { AlbumsContext } from "../context/GeneralContex";
+import { AlbumsContext } from "../context/GeneralContext";
 import { IconButton, Card, CardContent, Grid } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 function MyAlbums() {
   const FILTERED_DATA = "FILTERED_DATA";
-  const { allInfo, SetSearchVal, searchFavVal, SetSearchFavVal } =
-    useContext(AlbumsContext);
+  const { allInfo, SetSearchVal, searchFavVal, SetSearchFavVal } = useContext(AlbumsContext);
   const [shallow, setShallow] = useState(allInfo);
 
-  const trueFavorite = shallow.map((el) => {
-    if (el?.favorites) {
-      return el;
-    } else {
-      return [];
-    }
-  });
 
-  const filteredFavData = trueFavorite.filter((el) => {
-    if (
-      el?.song?.toLowerCase().includes(searchFavVal) ||
-      el?.band?.toLowerCase().includes(searchFavVal) ||
-      el?.album?.toLowerCase().includes(searchFavVal) ||
-      el?.singer?.toLowerCase().includes(searchFavVal)
-    ) {
-      return el;
-    }
-  });
+  const ifIncludes = (elementPropertyVal) => elementPropertyVal.toLowerCase().includes(searchFavVal.toLowerCase())
+
+  const checkSearchFavVal = ({ song, band, album, singer }) => {
+    return ifIncludes(song) || ifIncludes(band) || ifIncludes(album) || ifIncludes(singer)
+  }
+
+  const trueFavorite = shallow.filter((el) => {
+    const isTrue = el?.favorites && searchFavVal.length > 0
+    return isTrue ? checkSearchFavVal(el) : el?.favorites
+  })
 
   const handleDeleteClick = (el) => {
-    shallow.map((item) => {
+    shallow.forEach((item) => {
       if (item.id === el.id) {
         console.log(item);
         item.favorites = false;
@@ -56,7 +48,6 @@ function MyAlbums() {
           <ul
             style={{
               display: "flex",
-              justifyContent: "center",
               width: "70%",
               justifyContent: "space-between",
               listStyle: "none",
@@ -69,7 +60,7 @@ function MyAlbums() {
           </ul>
 
           <Grid container spacing={2}>
-            {filteredFavData.map((el, index) => {
+            {trueFavorite.map((el, index) => {
               return (
                 <Grid key={el.id} item xs={12}>
                   <Card>
