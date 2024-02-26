@@ -1,18 +1,14 @@
-name: CI/CD is Easy! 
-
-on: 
-  push: 
-    branches:
-      - main
-
-jobs: 
-  build: 
+name: CI/CD is Easy!
+run-name: ${{ github.actor }} is learning GitHub Actions
+on: [push]
+jobs:
+  check-bats-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: favorite-music/checkout@v2
-      - uses: favorite-music/setup-node@v1
-        with: 
-          node-version: 12
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14'
       - run: npm ci
       - run: npm test
       - run: npm run build
