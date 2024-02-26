@@ -25,7 +25,7 @@ function Home() {
   const checkSearchVal = ({ song, band, album, singer }) => {
     return ifIncludes(song) || ifIncludes(band) || ifIncludes(album) || ifIncludes(singer)
   }
-  const filteredData = allInfo.filter((el) => searchVal.length ? checkSearchVal(el) : el)
+  const filteredData = allInfo?.filter((el) => searchVal.length ? checkSearchVal(el) : el)
 
 
   const date = format(new Date(), "yyyy/mm/dd");
